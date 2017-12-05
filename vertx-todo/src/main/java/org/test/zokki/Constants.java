@@ -13,4 +13,6 @@ public final class Constants {
     public static final String API_UPDATE = "/todos/:todoId";
     public static final String API_DELETE = "/todos/:todoId";
     public static final String API_DELETE_ALL = "/todos";
+
+    public static final String REDIS_TODO_KEY = "todos";
 }

@@ -33,6 +33,9 @@ public class TodoConverter {
     if (json.getValue("id") instanceof Number) {
       obj.setId(((Number)json.getValue("id")).intValue());
     }
+    if (json.getValue("incIdWith") instanceof Number) {
+      obj.setIncIdWith(((Number)json.getValue("incIdWith")).intValue());
+    }
     if (json.getValue("order") instanceof Number) {
       obj.setOrder(((Number)json.getValue("order")).intValue());
     }
@@ -49,6 +52,7 @@ public class TodoConverter {
       json.put("completed", obj.getCompleted());
     }
     json.put("id", obj.getId());
+    json.put("incId", obj.getIncId());
     if (obj.getOrder() != null) {
       json.put("order", obj.getOrder());
     }

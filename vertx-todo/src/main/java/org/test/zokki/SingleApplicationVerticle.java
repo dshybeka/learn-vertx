@@ -1,15 +1,14 @@
 package org.test.zokki;
 
-import com.google.common.collect.Sets;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
-
-
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import io.vertx.reactivex.ext.web.handler.CorsHandler;
-import io.vertx.redis.RedisClient;
+import io.vertx.reactivex.redis.RedisClient;
+import io.vertx.redis.RedisOptions;
+import org.test.zokki.model.Todo;
 import org.test.zokki.service.TodoService;
 
 import java.util.HashSet;
@@ -31,7 +30,7 @@ public class SingleApplicationVerticle extends AbstractVerticle {
 
         initData();
 
-        TodoService todoService = new TodoService();
+        TodoService todoService = new TodoService(redis);
 
         Router router = Router.router(vertx);
 
@@ -62,12 +61,30 @@ public class SingleApplicationVerticle extends AbstractVerticle {
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .rxListen(8080)
-        .subscribe(result -> startFuture.complete(),
-                   error -> startFuture.fail(error));
+                .subscribe(result -> startFuture.complete(),
+                        error -> startFuture.fail(error));
 
     }
 
     private void initData() {
 
+        RedisOptions redisOptions = new RedisOptions()
+                .setHost(config().getString("redis.host", REDIS_HOST))
+                .setPort(config().getInteger("redis.port", REDIS_PORT));
+
+        redis = RedisClient.create(vertx, redisOptions);
+
+        redis.rxHset(Constants.REDIS_TODO_KEY, "24",
+                Todo.TodoBuilder.aTodo()
+                        .withId(24)
+                        .withTitle("Smth to do")
+                        .withCompleted(false)
+                        .withOrder(1)
+                        .withUrl("vrf ?")
+                        .build()
+                        .toJson()
+                        .toString())
+        .subscribe(data -> System.out.println("Redis initialized and checked"),
+                   throwable -> throwable.printStackTrace());
     }
 }
