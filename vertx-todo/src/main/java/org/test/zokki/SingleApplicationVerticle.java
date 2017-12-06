@@ -52,11 +52,11 @@ public class SingleApplicationVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         router.get(Constants.API_GET).handler(todoService::getTodo);
-        router.get(Constants.API_CREATE).handler(todoService::createTodo);
-        router.get(Constants.API_DELETE).handler(todoService::deleteTodo);
-        router.get(Constants.API_DELETE_ALL).handler(todoService::deleteAll);
         router.get(Constants.API_LIST_ALL).handler(todoService::getAll);
-        router.get(Constants.API_UPDATE).handler(todoService::updateTodo);
+        router.post(Constants.API_CREATE).handler(todoService::createTodo);
+        router.delete(Constants.API_DELETE).handler(todoService::deleteTodo);
+        router.delete(Constants.API_DELETE_ALL).handler(todoService::deleteAll);
+        router.patch(Constants.API_UPDATE).handler(todoService::updateTodo);
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
