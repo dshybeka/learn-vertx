@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="col-md-12">
+                <h3>Dashboard</h3>
+            </div>
+
+            <div class="col-md-offset-2 col-md-8">
+
+                <h2>Default queue</h2>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User id</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody id="operations">
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+</body>
+
+<script type="text/javascript">
+    console.log("end");
+
+    function retrieveQueueInfo() {
+        console.log("calling retriueve queue info");
+        $.get("/queue", {}, function (dataHolder) {
+            console.log(dataHolder);
+            if (dataHolder.success) {
+
+                $("#operations").empty();
+                $.each(dataHolder.data, function (i, data) {
+                    var row = $("<tr>");
+                    var rowIndex = (i + 1);
+                    var index = $("<td>" + rowIndex + "</td>");
+                    var userId = $("<td>" + data.userId + "</td>");
+                    var score = $("<td>" + moment(data.score).format("YYYY-MM-DD HH:mm:ss") + "</td>");
+                    row.append(index).append(userId).append(score)
+                    $("#operations").append(row);
+                });
+            } else {
+                $("#operations").html("No data available");
+            }
+        });
+    }
+
+    setInterval(retrieveQueueInfo, 5000);
+    retrieveQueueInfo();
+    console.log("started");
+</script>
+</html>
