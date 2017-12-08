@@ -38,7 +38,7 @@ public class QueueServiceImpl implements QueueService {
 
         Preconditions.checkNotNull(userId, "User id should be provided");
 
-        redisDataStore.add(System.currentTimeMillis(), userId)
+        redisDataStore.addToQueue(System.currentTimeMillis(), userId)
                 .toCompletable()
                 .subscribe(CompletableHelper.toObserver(handler));
 

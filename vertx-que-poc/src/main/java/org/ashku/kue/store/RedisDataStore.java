@@ -37,7 +37,7 @@ public class RedisDataStore {
         return result;
     }
 
-    public Single<Void> add(long score, String userId) {
+    public Single<Void> addToQueue(long score, String userId) {
 
         return redisClient.rxZadd(DEFAULT_QUEUE, score, new JsonObject().put(USER_ID, userId).put(SCORE, score).toString())
                 .map(r -> (Void) null);

@@ -48,7 +48,7 @@ public class StorageVerticle extends AbstractVerticle {
 
                                 JsonObject request = (JsonObject) message.body();
 
-                                redisDataStore.add(System.currentTimeMillis(), request.getString(USER_ID_SNAKE))
+                                redisDataStore.addToQueue(System.currentTimeMillis(), request.getString(USER_ID_SNAKE))
                                         .subscribe(
                                                 result -> message.reply(new JsonObject().put(SUCCESS, true).put(DATA, result)),
                                                 throwable -> message.reply(new JsonObject().put(SUCCESS, true).put(DATA, throwable.getMessage()))
