@@ -32,7 +32,8 @@ public class ProxyVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
 
         router.get("/proxy/:userId").handler(this::proxyRequest);
-        router.get("/queue").handler(this::showAll);
+        router.get("/queue").handler(this::showAllDefault);
+        router.get("/process-queue").handler(this::showAllProcess);
         router.route("/*").handler(StaticHandler.create());
 
         vertx.createHttpServer()
@@ -75,13 +76,33 @@ public class ProxyVerticle extends AbstractVerticle {
         }
     }
 
-    private void showAll(RoutingContext routingContext) {
+    private void showAllDefault(RoutingContext routingContext) {
 
 
         HttpServerResponse response = routingContext.response();
         response.putHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString());
 
-        queueService.rxFindAll()
+        queueService.rxFindAllDefault()
+                .subscribe(
+                        result -> {
+
+                            response.end(new JsonObject().put(SUCCESS, true).put(DATA, result).toString());
+                        },
+                        throwable -> {
+
+                            throwable.printStackTrace();
+                            internalError(response);
+                        }
+                );
+    }
+
+    private void showAllProcess(RoutingContext routingContext) {
+
+
+        HttpServerResponse response = routingContext.response();
+        response.putHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString());
+
+        queueService.rxFindAllProcess()
                 .subscribe(
                         result -> {
 

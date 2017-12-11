@@ -7,7 +7,6 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.ashku.kue.service.impl.QueueServiceImpl;
 import org.ashku.kue.store.RedisDataStore;
@@ -34,7 +33,10 @@ public interface QueueService {
     }
 
     @Fluent
-    QueueService findAll(Handler<AsyncResult<List<JsonObject>>> handler);
+    QueueService findAllDefault(Handler<AsyncResult<List<JsonObject>>> handler);
+
+    @Fluent
+    QueueService findAllProcess(Handler<AsyncResult<List<JsonObject>>> handler);
 
     @Fluent
     QueueService addToQueue(JsonObject request, Handler<AsyncResult<JsonObject>> handler);

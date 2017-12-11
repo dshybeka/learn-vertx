@@ -14,10 +14,10 @@
         <div class="col-md-12">
 
             <div class="col-md-12">
-                <h3>Dashboard</h3>
+                <h3>Dashboards</h3>
             </div>
 
-            <div class="col-md-offset-2 col-md-8">
+            <div class="col-md-6 text-center">
 
                 <h2>Default queue</h2>
                 <table class="table table-striped">
@@ -28,11 +28,29 @@
                         <th>Date</th>
                     </tr>
                     </thead>
-                    <tbody id="operations">
+                    <tbody id="default-queue">
                     </tbody>
                 </table>
 
             </div>
+
+            <div class="col-md-6 text-center">
+
+                <h2>Process queue</h2>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User id</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody id="process-queue">
+                    </tbody>
+                </table>
+
+            </div>
+
         </div>
     </div>
 </div>
@@ -45,20 +63,42 @@
     console.log("end");
 
     function retrieveQueueInfo() {
-        console.log("calling retriueve queue info");
+        console.log("calling retrieve default queue info");
         $.get("/queue", {}, function (dataHolder) {
             console.log(dataHolder);
             if (dataHolder.success) {
 
-                $("#operations").empty();
+                $("#default-queue").empty();
                 $.each(dataHolder.data, function (i, data) {
                     var row = $("<tr>");
                     var rowIndex = (i + 1);
                     var index = $("<td>" + rowIndex + "</td>");
-                    var userId = $("<td>" + data.userId + "</td>");
+                    var userId = $("<td>" + data.score + "</td>");
                     var score = $("<td>" + moment(data.score).format("YYYY-MM-DD HH:mm:ss") + "</td>");
                     row.append(index).append(userId).append(score)
-                    $("#operations").append(row);
+                    $("#default-queue").append(row);
+                });
+            } else {
+                $("#operations").html("No data available");
+            }
+        });
+    }
+
+    function retrieveProcessQueueInfo() {
+        console.log("calling retrieve process queue info");
+        $.get("/process-queue", {}, function (dataHolder) {
+            console.log(dataHolder);
+            if (dataHolder.success) {
+
+                $("#process-queue").empty();
+                $.each(dataHolder.data, function (i, data) {
+                    var row = $("<tr>");
+                    var rowIndex = (i + 1);
+                    var index = $("<td>" + rowIndex + "</td>");
+                    var userId = $("<td>" + data.score + "</td>");
+                    var score = $("<td>" + moment(data.score).format("YYYY-MM-DD HH:mm:ss") + "</td>");
+                    row.append(index).append(userId).append(score)
+                    $("#process-queue").append(row);
                 });
             } else {
                 $("#operations").html("No data available");
@@ -67,7 +107,10 @@
     }
 
     setInterval(retrieveQueueInfo, 5000);
+    setInterval(retrieveProcessQueueInfo, 5000);
     retrieveQueueInfo();
+    retrieveProcessQueueInfo();
+
     console.log("started");
 </script>
 </html>

@@ -70,14 +70,25 @@ public class QueueService {
     return delegate;
   }
 
-  public QueueService findAll(Handler<AsyncResult<List<JsonObject>>> handler) { 
-    delegate.findAll(handler);
+  public QueueService findAllDefault(Handler<AsyncResult<List<JsonObject>>> handler) { 
+    delegate.findAllDefault(handler);
     return this;
   }
 
-  public Single<List<JsonObject>> rxFindAll() { 
+  public Single<List<JsonObject>> rxFindAllDefault() { 
     return new io.vertx.reactivex.core.impl.AsyncResultSingle<List<JsonObject>>(handler -> {
-      findAll(handler);
+      findAllDefault(handler);
+    });
+  }
+
+  public QueueService findAllProcess(Handler<AsyncResult<List<JsonObject>>> handler) { 
+    delegate.findAllProcess(handler);
+    return this;
+  }
+
+  public Single<List<JsonObject>> rxFindAllProcess() { 
+    return new io.vertx.reactivex.core.impl.AsyncResultSingle<List<JsonObject>>(handler -> {
+      findAllProcess(handler);
     });
   }
 

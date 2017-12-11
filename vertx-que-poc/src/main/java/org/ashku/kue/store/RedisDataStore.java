@@ -33,9 +33,9 @@ public class RedisDataStore {
         this.processQueueSize = processQueueSize;
     }
 
-    public Single<List<JsonObject>> findAll() {
+    public Single<List<JsonObject>> findAllDefault() {
 
-        Single<JsonArray> data = redisClient.rxZrangebyscore(DEFAULT_QUEUE, String.valueOf(System.currentTimeMillis() - queueRetentionMills * 10), String.valueOf(System.currentTimeMillis()), RangeLimitOptions.NONE);
+        Single<JsonArray> data = redisClient.rxZrangebyscore(DEFAULT_QUEUE, String.valueOf(0), String.valueOf(Double.MAX_VALUE), RangeLimitOptions.NONE);
 
         Single<List<JsonObject>> result = data.map(row -> {
 
@@ -48,7 +48,22 @@ public class RedisDataStore {
         return result;
     }
 
-    public Single<JsonObject> addToQueue(long score, String userId) {
+    public Single<List<JsonObject>> findAllProcess() {
+
+        Single<JsonArray> data = redisClient.rxZrangebyscore(PROCESS_QUEUE, String.valueOf(0), String.valueOf(Double.MAX_VALUE), RangeLimitOptions.NONE);
+
+        Single<List<JsonObject>> result = data.map(row -> {
+
+            List<JsonObject> collected = row.stream().map(rawData -> new JsonObject(rawData.toString()))
+                    .collect(Collectors.toList());
+
+            return collected;
+        });
+
+        return result;
+    }
+
+    public Single<JsonObject> addToDefaultQueue(long score, String userId) {
 
         long oldestRecordTime = score - queueRetentionMills;
 
@@ -74,7 +89,7 @@ public class RedisDataStore {
 
                         System.out.println("Adding to default queue " + count);
 
-                        return addToQueue(score, userId);
+                        return addToDefaultQueue(score, userId);
 
                     } else {
 

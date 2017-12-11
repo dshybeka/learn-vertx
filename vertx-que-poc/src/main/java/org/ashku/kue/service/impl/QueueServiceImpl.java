@@ -24,9 +24,19 @@ public class QueueServiceImpl implements QueueService {
         this.redisDataStore = redisDataStore;
     }
 
-    public QueueService findAll(Handler<AsyncResult<List<JsonObject>>> handler) {
+    public QueueService findAllDefault(Handler<AsyncResult<List<JsonObject>>> handler) {
 
-        redisDataStore.findAll()
+        redisDataStore.findAllDefault()
+                .map(found -> found)
+                .subscribe(SingleHelper.toObserver(handler));
+
+        return this;
+    }
+
+    @Override
+    public QueueService findAllProcess(Handler<AsyncResult<List<JsonObject>>> handler) {
+
+        redisDataStore.findAllProcess()
                 .map(found -> found)
                 .subscribe(SingleHelper.toObserver(handler));
 
@@ -39,7 +49,7 @@ public class QueueServiceImpl implements QueueService {
 
         Preconditions.checkNotNull(userId, "User id should be provided");
 
-        redisDataStore.addToQueue(System.currentTimeMillis(), userId)
+        redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), userId)
                 .subscribe(SingleHelper.toObserver(handler));
 
         return this;
