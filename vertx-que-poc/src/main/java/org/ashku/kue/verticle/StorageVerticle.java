@@ -18,6 +18,8 @@ import static org.ashku.kue.Constants.Storage.PORT;
  */
 public class StorageVerticle extends AbstractVerticle {
 
+    public static final long DEFAULT_QUEUE_RETENTION = 1000L * 60;
+
     @Override
     public void start(Future<Void> startFuture) {
 
@@ -25,7 +27,7 @@ public class StorageVerticle extends AbstractVerticle {
                 .setHost(config().getString(HOST, Constants.Storage.DEFAULT_REDIS_HOST))
                 .setPort(config().getInteger(PORT, Constants.Storage.DEFAULT_REDIS_PORT))
         );
-        RedisDataStore redisDataStore = new RedisDataStore(redisClient);
+        RedisDataStore redisDataStore = new RedisDataStore(redisClient, config().getLong(Constants.Storage.DEFAULT_QUEUE_RETENTION, DEFAULT_QUEUE_RETENTION));
 
         ServiceBinder serviceBinder = new ServiceBinder(vertx.getDelegate());
         serviceBinder.setAddress(STORE_OPERATIONS);

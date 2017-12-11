@@ -22,9 +22,6 @@ public abstract class Constants {
     public static abstract class Event {
 
         public static final String STORE_OPERATIONS = "kue.store.operations";
-        public static final String STORE_OPERATIONS_FIND_ALL = "kue.store.operations.find.all";
-        public static final String STORE_OPERATIONS_ADD = "kue.store.operations.add";
-
     }
 
     public static abstract class Storage {
@@ -38,5 +35,7 @@ public abstract class Constants {
         public static final String PORT = "host";
 
         public static final String ACTION = "action";
+
+        public static final String DEFAULT_QUEUE_RETENTION = "data";
     }
 }
