@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.ashku.kue.Constants.SCORE;
+import static org.ashku.kue.Constants.SUCCESS;
 import static org.ashku.kue.Constants.USER_ID;
 
 /**
@@ -30,16 +31,18 @@ public class RedisDataStore {
 
         Single<List<JsonObject>> result = data.map(row -> {
 
-            return row.stream().map(rawData -> new JsonObject(rawData.toString()))
+            List<JsonObject> collected = row.stream().map(rawData -> new JsonObject(rawData.toString()))
                     .collect(Collectors.toList());
+
+            return collected;
         });
 
         return result;
     }
 
-    public Single<Void> addToQueue(long score, String userId) {
+    public Single<JsonObject> addToQueue(long score, String userId) {
 
         return redisClient.rxZadd(DEFAULT_QUEUE, score, new JsonObject().put(USER_ID, userId).put(SCORE, score).toString())
-                .map(r -> (Void) null);
+                .map(r -> new JsonObject().put(SUCCESS, true));
     }
 }

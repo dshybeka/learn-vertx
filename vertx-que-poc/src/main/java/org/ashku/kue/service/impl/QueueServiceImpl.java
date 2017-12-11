@@ -3,11 +3,12 @@ package org.ashku.kue.service.impl;
 import com.google.common.base.Preconditions;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.reactivex.CompletableHelper;
+import io.vertx.reactivex.SingleHelper;
 import org.ashku.kue.service.QueueService;
 import org.ashku.kue.store.RedisDataStore;
+
+import java.util.List;
 
 import static org.ashku.kue.Constants.USER_ID_SNAKE;
 
@@ -23,24 +24,23 @@ public class QueueServiceImpl implements QueueService {
         this.redisDataStore = redisDataStore;
     }
 
-    public QueueService findAll(Handler<AsyncResult<JsonArray>> handler) {
+    public QueueService findAll(Handler<AsyncResult<List<JsonObject>>> handler) {
 
         redisDataStore.findAll()
-                .toCompletable()
-                .subscribe(CompletableHelper.toObserver(handler));
+                .map(found -> found)
+                .subscribe(SingleHelper.toObserver(handler));
 
         return this;
     }
 
-    public QueueService addToQueue(JsonObject request, Handler<AsyncResult<Void>> handler) {
+    public QueueService addToQueue(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
         String userId = request.getString(USER_ID_SNAKE);
 
         Preconditions.checkNotNull(userId, "User id should be provided");
 
         redisDataStore.addToQueue(System.currentTimeMillis(), userId)
-                .toCompletable()
-                .subscribe(CompletableHelper.toObserver(handler));
+                .subscribe(SingleHelper.toObserver(handler));
 
         return this;
     }

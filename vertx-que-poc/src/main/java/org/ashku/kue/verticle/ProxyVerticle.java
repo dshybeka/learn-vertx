@@ -5,7 +5,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Future;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.http.HttpServerResponse;
@@ -13,19 +12,22 @@ import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.StaticHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.ashku.kue.service.QueueService;
 
-import static org.ashku.kue.Constants.DEFAULT_HTTP_PORT;
-import static org.ashku.kue.Constants.Event.STORE_OPERATIONS_ADD;
-import static org.ashku.kue.Constants.Event.STORE_OPERATIONS_FIND_ALL;
-import static org.ashku.kue.Constants.USER_ID_SNAKE;
+import static org.ashku.kue.Constants.*;
+import static org.ashku.kue.Constants.Event.STORE_OPERATIONS;
 
 /**
  * Created by Dzianis_Shybeka on 12/6/2017
  */
 public class ProxyVerticle extends AbstractVerticle {
 
+    private org.ashku.kue.service.reactivex.QueueService queueService;
+
     @Override
     public void start(Future<Void> startFuture) {
+
+        queueService = QueueService.createProxy(vertx.getDelegate(), STORE_OPERATIONS);
 
         Router router = Router.router(vertx);
 
@@ -57,7 +59,7 @@ public class ProxyVerticle extends AbstractVerticle {
 
         if(StringUtils.isNotEmpty(userId)) {
 
-            vertx.eventBus().rxSend(STORE_OPERATIONS_ADD, new JsonObject().put(USER_ID_SNAKE, userId))
+            queueService.rxAddToQueue(new JsonObject().put(USER_ID_SNAKE, userId))
                     .subscribe(
                             result -> {
                                 response.end("proxied");
@@ -79,11 +81,11 @@ public class ProxyVerticle extends AbstractVerticle {
         HttpServerResponse response = routingContext.response();
         response.putHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString());
 
-        vertx.eventBus().rxSend(STORE_OPERATIONS_FIND_ALL, "")
+        queueService.rxFindAll()
                 .subscribe(
                         result -> {
 
-                            response.end(Json.encode(result.body()));
+                            response.end(new JsonObject().put(SUCCESS, true).put(DATA, result).toString());
                         },
                         throwable -> {
 

@@ -36,5 +36,7 @@ public abstract class Constants {
         public static final String HOST = "host";
 
         public static final String PORT = "host";
+
+        public static final String ACTION = "action";
     }
 }

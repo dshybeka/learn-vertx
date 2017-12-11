@@ -22,7 +22,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.vertx.core.json.JsonArray;
+import java.util.List;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -70,24 +70,24 @@ public class QueueService {
     return delegate;
   }
 
-  public QueueService findAll(Handler<AsyncResult<JsonArray>> handler) { 
+  public QueueService findAll(Handler<AsyncResult<List<JsonObject>>> handler) { 
     delegate.findAll(handler);
     return this;
   }
 
-  public Single<JsonArray> rxFindAll() { 
-    return new io.vertx.reactivex.core.impl.AsyncResultSingle<JsonArray>(handler -> {
+  public Single<List<JsonObject>> rxFindAll() { 
+    return new io.vertx.reactivex.core.impl.AsyncResultSingle<List<JsonObject>>(handler -> {
       findAll(handler);
     });
   }
 
-  public QueueService addToQueue(JsonObject request, Handler<AsyncResult<Void>> handler) { 
+  public QueueService addToQueue(JsonObject request, Handler<AsyncResult<JsonObject>> handler) { 
     delegate.addToQueue(request, handler);
     return this;
   }
 
-  public Completable rxAddToQueue(JsonObject request) { 
-    return new io.vertx.reactivex.core.impl.AsyncResultCompletable(handler -> {
+  public Single<JsonObject> rxAddToQueue(JsonObject request) { 
+    return new io.vertx.reactivex.core.impl.AsyncResultSingle<JsonObject>(handler -> {
       addToQueue(request, handler);
     });
   }

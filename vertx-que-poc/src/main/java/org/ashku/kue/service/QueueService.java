@@ -6,10 +6,13 @@ import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.ashku.kue.service.impl.QueueServiceImpl;
 import org.ashku.kue.store.RedisDataStore;
+
+import java.util.List;
 
 /**
  * Created by Dzianis_Shybeka on 12/7/2017
@@ -24,9 +27,15 @@ public interface QueueService {
         return new QueueServiceImpl(redisDataStore);
     }
 
-    @Fluent
-    QueueService findAll(Handler<AsyncResult<JsonArray>> handler);
+    @GenIgnore
+    static org.ashku.kue.service.reactivex.QueueService createProxy(Vertx vertx, String address) {
+
+        return new org.ashku.kue.service.reactivex.QueueService(new QueueServiceVertxEBProxy(vertx, address));
+    }
 
     @Fluent
-    QueueService addToQueue(JsonObject request, Handler<AsyncResult<Void>> handler);
+    QueueService findAll(Handler<AsyncResult<List<JsonObject>>> handler);
+
+    @Fluent
+    QueueService addToQueue(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 }

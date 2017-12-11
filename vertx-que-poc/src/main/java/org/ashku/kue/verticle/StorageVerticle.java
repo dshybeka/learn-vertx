@@ -1,17 +1,15 @@
 package org.ashku.kue.verticle;
 
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
-import io.vertx.reactivex.core.eventbus.EventBus;
 import io.vertx.reactivex.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
+import io.vertx.serviceproxy.ServiceBinder;
 import org.ashku.kue.Constants;
+import org.ashku.kue.service.QueueService;
 import org.ashku.kue.store.RedisDataStore;
 
-import static org.ashku.kue.Constants.*;
-import static org.ashku.kue.Constants.Event.STORE_OPERATIONS_ADD;
-import static org.ashku.kue.Constants.Event.STORE_OPERATIONS_FIND_ALL;
+import static org.ashku.kue.Constants.Event.STORE_OPERATIONS;
 import static org.ashku.kue.Constants.Storage.HOST;
 import static org.ashku.kue.Constants.Storage.PORT;
 
@@ -21,39 +19,22 @@ import static org.ashku.kue.Constants.Storage.PORT;
 public class StorageVerticle extends AbstractVerticle {
 
     @Override
-    public void start(Future<Void> startFuture) throws Exception {
+    public void start(Future<Void> startFuture) {
 
         RedisClient redisClient = RedisClient.create(vertx, new RedisOptions()
                 .setHost(config().getString(HOST, Constants.Storage.DEFAULT_REDIS_HOST))
                 .setPort(config().getInteger(PORT, Constants.Storage.DEFAULT_REDIS_PORT))
         );
+        RedisDataStore redisDataStore = new RedisDataStore(redisClient);
+
+        ServiceBinder serviceBinder = new ServiceBinder(vertx.getDelegate());
+        serviceBinder.setAddress(STORE_OPERATIONS);
+
         redisClient.rxPing()
                 .subscribe(
                         pingResult -> {
 
-                            RedisDataStore redisDataStore = new RedisDataStore(redisClient);
-
-                            EventBus eventBus = vertx.eventBus();
-
-                            eventBus.consumer(STORE_OPERATIONS_FIND_ALL, message -> {
-
-                                redisDataStore.findAll()
-                                        .subscribe(
-                                                result -> message.reply(new JsonObject().put(SUCCESS, true).put(DATA, result)),
-                                                throwable -> message.reply(new JsonObject().put(SUCCESS, true).put(DATA, throwable))
-                                        );
-                            });
-
-                            eventBus.consumer(STORE_OPERATIONS_ADD, message -> {
-
-                                JsonObject request = (JsonObject) message.body();
-
-                                redisDataStore.addToQueue(System.currentTimeMillis(), request.getString(USER_ID_SNAKE))
-                                        .subscribe(
-                                                result -> message.reply(new JsonObject().put(SUCCESS, true).put(DATA, result)),
-                                                throwable -> message.reply(new JsonObject().put(SUCCESS, true).put(DATA, throwable.getMessage()))
-                                        );
-                            });
+                            serviceBinder.register(QueueService.class, QueueService.create(redisDataStore));
 
                             System.out.println("Storage initialized");
 
@@ -65,6 +46,4 @@ public class StorageVerticle extends AbstractVerticle {
                             startFuture.fail(throwable);
                         });
     }
-
-
 }
