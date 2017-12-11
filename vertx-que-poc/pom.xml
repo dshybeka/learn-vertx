@@ -16,6 +16,7 @@
         <main.verticle>org.ashku.kue.verticle.ProxyVerticle</main.verticle>
         <guava.version>23.0</guava.version>
         <commons-lang3.version>3.7</commons-lang3.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
     <dependencyManagement>
@@ -76,12 +77,20 @@
         <!-- END: utils -->
 
         <!-- test -->
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-unit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
         <!-- END: test -->
     </dependencies>
 
