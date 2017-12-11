@@ -56,6 +56,6 @@ public class RedisDataStore {
                     Single<JsonArray> exec = transaction.rxExec();
 
                     return Single.zip(removed, added, exec, (first, second, third) -> true);
-                }).map( r -> new JsonObject().put(SUCCESS, true));
+                }).map( r -> new JsonObject().put(SCORE, score).put(USER_ID_SNAKE, userId));
     }
 }
