@@ -48,6 +48,21 @@ public class RedisDataStore {
         return result;
     }
 
+    public Single<List<JsonObject>> findFromDefaultQueueLimit(Long limitInclusive) {
+
+        Single<JsonArray> data = redisClient.rxZrange(DEFAULT_QUEUE, 0, limitInclusive-1);
+
+        Single<List<JsonObject>> result = data.map(row -> {
+
+            List<JsonObject> collected = row.stream().map(rawData -> new JsonObject(rawData.toString()))
+                    .collect(Collectors.toList());
+
+            return collected;
+        });
+
+        return result;
+    }
+
     public Single<List<JsonObject>> findAllProcess() {
 
         Single<JsonArray> data = redisClient.rxZrangebyscore(PROCESS_QUEUE, String.valueOf(0), String.valueOf(Double.MAX_VALUE), RangeLimitOptions.NONE);
@@ -80,9 +95,9 @@ public class RedisDataStore {
                 }).map(r -> new JsonObject().put(SCORE, score).put(USER_ID_SNAKE, userId));
     }
 
-    public Single<JsonObject> addToProcessQueueWithCheck(long score, String userId) {
+    public Single<JsonObject> addToProcessOrDefaultQueue(long score, String userId) {
 
-        return count(PROCESS_QUEUE)
+        return countProcessQueue()
                 .flatMap(count -> {
 
                     if (count >= processQueueSize) {
@@ -102,14 +117,43 @@ public class RedisDataStore {
 
     public Single<JsonObject> addToProcessingQueue(long score, String userId) {
 
-        RedisTransaction transaction = redisClient.transaction();
-
-        return transaction.rxZadd(PROCESS_QUEUE, score, new JsonObject().put(USER_ID, userId).put(SCORE, score).toString())
+        return redisClient.rxZadd(PROCESS_QUEUE, score, new JsonObject().put(USER_ID, userId).put(SCORE, score).toString())
                 .map(r -> new JsonObject().put(SCORE, score).put(USER_ID_SNAKE, userId));
+    }
+
+    public Single<Long> countProcessQueue() {
+
+        return count(PROCESS_QUEUE);
     }
 
     public Single<Long> count(String queueName) {
 
-        return redisClient.rxZcount(queueName, 0, Double.MAX_VALUE);
+        return redisClient.rxZcard(queueName);
+    }
+
+    public Single<Long> removeFromProcessQueueOlderThan(Long oldestRecordTime) {
+
+        return redisClient.rxZremrangebyscore(PROCESS_QUEUE, String.valueOf(0), String.valueOf(oldestRecordTime));
+    }
+
+    public Single<Boolean> moveToProcessQueue(List<JsonObject> jsonObjects) {
+
+        RedisTransaction transaction = redisClient.transaction();
+
+        return transaction.rxMulti()
+                .flatMap(r -> {
+
+                    List<Single<Boolean>> removedAnAdded = jsonObjects.stream().map(jsonObject -> {
+
+                        Single<String> removed = transaction.rxZremrangebyscore(DEFAULT_QUEUE, jsonObject.getLong(SCORE).toString(), jsonObject.getLong(SCORE).toString());
+                        Single<String> added = transaction.rxZadd(PROCESS_QUEUE, jsonObject.getLong(SCORE), jsonObject.toString());
+
+                        return Single.zip(removed, added, (rm, a) -> true);
+                    }).collect(Collectors.toList());
+
+                    removedAnAdded.add(transaction.rxExec().map(value -> true));
+
+                    return Single.zip(removedAnAdded, (value) -> true);
+                });
     }
 }

@@ -14,6 +14,8 @@ public abstract class Constants {
     public static final String USER_ID_SNAKE = "user_id";
     public static final String USER_ID = "userId";
 
+    public static final String LIMIT = "limit";
+
     public static final String SCORE = "score";
 
     public static final String SUCCESS = "success";

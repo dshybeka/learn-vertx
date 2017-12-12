@@ -59,11 +59,11 @@ public class RedisDataStoreIntegrationTest {
         Async async = testContext.async();
 
         //  when:
-        Single<JsonObject> added1 = redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), "121");
-        Single<JsonObject> added2 = redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), "122");
-        Single<JsonObject> added3 = redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), "123");
-        Single<JsonObject> added4 = redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), "124");
-        Single<JsonObject> added5 = redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), "125");
+        Single<JsonObject> added1 = redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), "121");
+        Single<JsonObject> added2 = redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), "122");
+        Single<JsonObject> added3 = redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), "123");
+        Single<JsonObject> added4 = redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), "124");
+        Single<JsonObject> added5 = redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), "125");
 
         //  then:
         Single.zip(added1, added2, added3, added4, added5, (a1, a2, a3, a4, a5) -> true)
@@ -72,7 +72,7 @@ public class RedisDataStoreIntegrationTest {
 
                             testContext.assertNotNull(result);
 
-                            redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), "126")
+                            redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), "126")
                                     .subscribe(result2 -> {
 
                                         Single<TestContext> processedQueueCount = redisDataStore.count(PROCESS_QUEUE)

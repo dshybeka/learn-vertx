@@ -14,8 +14,10 @@ public class Runner {
 
         Single<String> storageVerticle = vertx.rxDeployVerticle(StorageVerticle.class.getName());
         Single<String> proxyVerticle = vertx.rxDeployVerticle(ProxyVerticle.class.getName());
+        Single<String> schedulerVerticle = vertx.rxDeployVerticle(SchedulerVerticle.class.getName());
 
-        Single.zip(storageVerticle, proxyVerticle, (s, p) -> true)
+        storageVerticle
+                .flatMap(storageInitialized -> Single.zip(proxyVerticle, schedulerVerticle, (p, sch) -> true))
                 .subscribe(
                         result -> System.out.println("Deployed successfully"),
                         throwable -> {

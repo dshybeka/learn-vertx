@@ -49,7 +49,37 @@ public class QueueServiceImpl implements QueueService {
 
         Preconditions.checkNotNull(userId, "User id should be provided");
 
-        redisDataStore.addToProcessQueueWithCheck(System.currentTimeMillis(), userId)
+        redisDataStore.addToProcessOrDefaultQueue(System.currentTimeMillis(), userId)
+                .subscribe(SingleHelper.toObserver(handler));
+
+        return this;
+    }
+
+    public QueueService moveToProcessQueue(Long limit, Handler<AsyncResult<Boolean>> handler) {
+
+        redisDataStore.findFromDefaultQueueLimit(limit)
+                .flatMap(rowsToMove -> {
+
+                    return redisDataStore.moveToProcessQueue(rowsToMove);
+                })
+        .subscribe(SingleHelper.toObserver(handler));
+
+        return this;
+    }
+
+    @Override
+    public QueueService countProcessQueue(Handler<AsyncResult<Long>> handler) {
+
+        redisDataStore.countProcessQueue()
+                .subscribe(SingleHelper.toObserver(handler));
+
+        return this;
+    }
+
+    @Override
+    public QueueService deleteFromProcessQueue(Long oldestRecordTime, Handler<AsyncResult<Long>> handler) {
+
+        redisDataStore.removeFromProcessQueueOlderThan(oldestRecordTime)
                 .subscribe(SingleHelper.toObserver(handler));
 
         return this;

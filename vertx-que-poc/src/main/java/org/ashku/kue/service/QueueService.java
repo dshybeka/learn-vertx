@@ -40,4 +40,13 @@ public interface QueueService {
 
     @Fluent
     QueueService addToQueue(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+    @Fluent
+    QueueService deleteFromProcessQueue(Long oldestRecordTime, Handler<AsyncResult<Long>> handler);
+
+    @Fluent
+    QueueService moveToProcessQueue(Long limit, Handler<AsyncResult<Boolean>> handler);
+
+    @Fluent
+    QueueService countProcessQueue(Handler<AsyncResult<Long>> handler);
 }

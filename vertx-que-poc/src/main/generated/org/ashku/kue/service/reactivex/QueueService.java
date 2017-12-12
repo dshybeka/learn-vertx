@@ -103,6 +103,39 @@ public class QueueService {
     });
   }
 
+  public QueueService deleteFromProcessQueue(Long oldestRecordTime, Handler<AsyncResult<Long>> handler) { 
+    delegate.deleteFromProcessQueue(oldestRecordTime, handler);
+    return this;
+  }
+
+  public Single<Long> rxDeleteFromProcessQueue(Long oldestRecordTime) { 
+    return new io.vertx.reactivex.core.impl.AsyncResultSingle<Long>(handler -> {
+      deleteFromProcessQueue(oldestRecordTime, handler);
+    });
+  }
+
+  public QueueService moveToProcessQueue(Long limit, Handler<AsyncResult<Boolean>> handler) { 
+    delegate.moveToProcessQueue(limit, handler);
+    return this;
+  }
+
+  public Single<Boolean> rxMoveToProcessQueue(Long limit) { 
+    return new io.vertx.reactivex.core.impl.AsyncResultSingle<Boolean>(handler -> {
+      moveToProcessQueue(limit, handler);
+    });
+  }
+
+  public QueueService countProcessQueue(Handler<AsyncResult<Long>> handler) { 
+    delegate.countProcessQueue(handler);
+    return this;
+  }
+
+  public Single<Long> rxCountProcessQueue() { 
+    return new io.vertx.reactivex.core.impl.AsyncResultSingle<Long>(handler -> {
+      countProcessQueue(handler);
+    });
+  }
+
 
   public static  QueueService newInstance(org.ashku.kue.service.QueueService arg) {
     return arg != null ? new QueueService(arg) : null;
