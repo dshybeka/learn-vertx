@@ -1,12 +1,16 @@
 package org.ashku.kue.verticle;
 
 import io.reactivex.Single;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.reactivex.core.Vertx;
 
 /**
  * Created by Dzianis_Shybeka on 12/7/2017
  */
 public class Runner {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) {
 
@@ -19,11 +23,11 @@ public class Runner {
         storageVerticle
                 .flatMap(storageInitialized -> Single.zip(proxyVerticle, schedulerVerticle, (p, sch) -> true))
                 .subscribe(
-                        result -> System.out.println("Deployed successfully"),
+                        result -> LOG.info("Deployed successfully"),
                         throwable -> {
 
                             throwable.printStackTrace();
-                            System.out.println("cannot deploy");
+                            LOG.info("cannot deploy");
 
                             vertx.close();
                         });

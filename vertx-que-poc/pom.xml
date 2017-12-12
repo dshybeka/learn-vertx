@@ -17,6 +17,7 @@
         <guava.version>23.0</guava.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <junit.version>4.12</junit.version>
+        <logback-classic.version>1.0.13</logback-classic.version>
     </properties>
 
     <dependencyManagement>
@@ -76,8 +77,15 @@
         </dependency>
         <!-- END: utils -->
 
-        <!-- test -->
+        <!-- logs -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-classic.version}</version>
+        </dependency>
+        <!-- END: logs -->
 
+        <!-- test -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
@@ -90,8 +98,8 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- END: test -->
+
     </dependencies>
 
     <build>

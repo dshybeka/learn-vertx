@@ -1,6 +1,8 @@
 package org.ashku.kue.verticle;
 
 import io.vertx.core.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
@@ -17,6 +19,8 @@ import static org.ashku.kue.Constants.Storage.PORT;
  * Created by Dzianis_Shybeka on 12/7/2017
  */
 public class StorageVerticle extends AbstractVerticle {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StorageVerticle.class);
 
     public static final long DEFAULT_QUEUE_RETENTION_MILLS = 1000L * 60 * 2;
     public static final long DEFAULT_QUEUE_SIZE = 5;
@@ -39,13 +43,14 @@ public class StorageVerticle extends AbstractVerticle {
 
                             serviceBinder.register(QueueService.class, QueueService.create(redisDataStore));
 
-                            System.out.println("Storage initialized");
+                            LOG.info("Storage initialized");
 
                             startFuture.complete();
                         },
                         throwable -> {
 
-                            throwable.printStackTrace();
+                            LOG.error("Cannot connect to db ", throwable);
+
                             startFuture.fail(throwable);
                         });
     }

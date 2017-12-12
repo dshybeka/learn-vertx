@@ -6,6 +6,8 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.Router;
@@ -21,6 +23,8 @@ import static org.ashku.kue.Constants.Event.STORE_OPERATIONS;
  * Created by Dzianis_Shybeka on 12/6/2017
  */
 public class ProxyVerticle extends AbstractVerticle {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProxyVerticle.class);
 
     private org.ashku.kue.service.reactivex.QueueService queueService;
 
@@ -41,7 +45,7 @@ public class ProxyVerticle extends AbstractVerticle {
                 .rxListen(config().getInteger("http.port", DEFAULT_HTTP_PORT))
                 .subscribe(done -> {
 
-                            System.out.println("Http proxy server started ");
+                            LOG.info("Http proxy server started ");
                             startFuture.complete();
                         },
                         throwable -> {

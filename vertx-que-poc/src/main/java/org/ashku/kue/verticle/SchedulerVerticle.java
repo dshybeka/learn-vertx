@@ -2,8 +2,11 @@ package org.ashku.kue.verticle;
 
 import io.reactivex.Single;
 import io.vertx.core.Future;
+
 import io.vertx.reactivex.core.AbstractVerticle;
 import org.ashku.kue.service.QueueService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ashku.kue.Constants.Event.STORE_OPERATIONS;
 import static org.ashku.kue.verticle.StorageVerticle.DEFAULT_QUEUE_SIZE;
@@ -12,6 +15,8 @@ import static org.ashku.kue.verticle.StorageVerticle.DEFAULT_QUEUE_SIZE;
  * Created by Dzianis_Shybeka on 12/12/2017
  */
 public class SchedulerVerticle extends AbstractVerticle {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SchedulerVerticle.class);
 
     private static final int DEFAULT_PERIOD = 1000 * 10;
     private static final int DEFAULT_TTL_FOR_PROCESS_QUEUE = 1000 * 60 * 2;
@@ -32,17 +37,17 @@ public class SchedulerVerticle extends AbstractVerticle {
                     .filter(value -> value > 0)
                     .flatMap(deleteResult -> {
 
-                        System.out.println("Move to next queue elements #" + deleteResult);
+                        LOG.info("Move to next queue elements #" + deleteResult);
 
                         return queueService.rxMoveToProcessQueue(deleteResult).toMaybe();
                     })
                     .subscribe(
                       deleteResult -> {
-                          System.out.println("Data removed from process queue ");
+                          LOG.info("Data removed from process queue ");
                       },
                       throwable -> {
 
-                          System.out.println("Error while removing data from queue");
+                          LOG.info("Error while removing data from queue");
                           throwable.printStackTrace();
                       }
                     );

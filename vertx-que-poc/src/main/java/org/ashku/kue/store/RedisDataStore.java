@@ -3,6 +3,8 @@ package org.ashku.kue.store;
 import io.reactivex.Single;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.reactivex.redis.RedisClient;
 import io.vertx.reactivex.redis.RedisTransaction;
 import io.vertx.redis.op.RangeLimitOptions;
@@ -16,6 +18,8 @@ import static org.ashku.kue.Constants.*;
  * Created by Dzianis_Shybeka on 12/7/2017
  */
 public class RedisDataStore {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RedisDataStore.class);
 
     public static final String DEFAULT_QUEUE = "default.queue";
     public static final String PROCESS_QUEUE = "process.queue";
@@ -102,13 +106,13 @@ public class RedisDataStore {
 
                     if (count >= processQueueSize) {
 
-                        System.out.println("Adding to default queue " + count);
+                        LOG.info("Adding to default queue " + count);
 
                         return addToDefaultQueue(score, userId);
 
                     } else {
 
-                        System.out.println("Adding to processing queue " + count);
+                        LOG.info("Adding to processing queue " + count);
 
                         return addToProcessingQueue(score, userId);
                     }
