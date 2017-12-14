@@ -9,6 +9,8 @@ import io.vertx.reactivex.core.AbstractVerticle;
 /**
  * Created by Dzianis_Shybeka on 12/7/2017
  *
+ * -Dvertx.disableFileCaching=true
+ *
  * fix redeploy args before testing
  *
   run org.ashku.kue.verticle.RunnerVerticle --redeploy=**\/*.class --launcher-class=io.vertx.core.Launcher

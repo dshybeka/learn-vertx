@@ -7,6 +7,8 @@ import io.vertx.reactivex.core.Vertx;
 
 /**
  * Created by Dzianis_Shybeka on 12/7/2017
+ *
+ * -Dvertx.disableFileCaching=true
  */
 public class Runner {
 

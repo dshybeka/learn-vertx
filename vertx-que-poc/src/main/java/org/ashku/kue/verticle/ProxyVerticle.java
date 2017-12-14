@@ -82,7 +82,6 @@ public class ProxyVerticle extends AbstractVerticle {
 
     private void showAllDefault(RoutingContext routingContext) {
 
-
         HttpServerResponse response = routingContext.response();
         response.putHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString());
 
